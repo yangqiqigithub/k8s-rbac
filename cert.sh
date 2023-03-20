@@ -22,7 +22,7 @@ EOF
 
 cat > aliang-csr.json <<EOF
 {
-  "CN": "aliang",
+  "CN": "aliang", # 用户名
   "hosts": [],
   "key": {
     "algo": "rsa",
