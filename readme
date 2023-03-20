@@ -1,0 +1,41 @@
+[root@k8s-master ~]# cd rbac/
+[root@k8s-master rbac]# ls
+aliang-csr.json  ca-config.json  cert.sh  kubeconfig.sh  rbac.yaml
+# 用k8s CA签发客户端证书
+[root@k8s-master rbac]# bash cert.sh 
+2023/02/27 16:18:02 [INFO] generate received request
+2023/02/27 16:18:02 [INFO] received CSR
+2023/02/27 16:18:02 [INFO] generating key: rsa-2048
+2023/02/27 16:18:02 [INFO] encoded CSR
+2023/02/27 16:18:02 [INFO] signed certificate with serial number 566522034020276577497226021802714830130514085279
+2023/02/27 16:18:02 [WARNING] This certificate lacks a "hosts" field. This makes it unsuitable for
+websites. For more information see the Baseline Requirements for the Issuance and Management
+of Publicly-Trusted Certificates, v.1.1.6, from the CA/Browser Forum (https://cabforum.org);
+specifically, section 10.2.3 ("Information Requirements").
+
+[root@k8s-master rbac]# ls
+aliang.csr  aliang-csr.json  aliang-key.pem  aliang.pem  ca-config.json  cert.sh  kubeconfig.sh  rbac.yaml
+
+# • 生成kubeconfig授权文件
+[root@k8s-master rbac]# bash kubeconfig.sh 
+Cluster "kubernetes" set.
+User "aliang" set.
+Context "kubernetes" created.
+Switched to context "kubernetes".
+
+# 生成aliang.kubeconfig
+[root@k8s-master rbac]# ls
+aliang.csr  aliang-csr.json  aliang-key.pem  aliang.kubeconfig  aliang.pem  ca-config.json  cert.sh  kubeconfig.sh  rbac.yaml
+
+到目前为止是有了一个用户，但是还没给这个用户授权，先测试一下这个用户的权限
+[root@k8s-master rbac]# kubectl get pods --kubecnotallow=aliang.kubeconfig
+Error from server (Forbidden): pods is forbidden: User "aliang" cannot list resource "pods" in API group "" in the namespace "default"
+会看到现在没有权限
+
+# 创建RBAC授权策略
+[root@k8s-master rbac]# kubectl apply -f rbac.yaml 
+role.rbac.authorization.k8s.io/pod-reader created
+rolebinding.rbac.authorization.k8s.io/read-pods created
+# 指定kubeconfig文件测试
+[root@k8s-master rbac]# kubectl get pods --kubecnotallow=aliang.kubeconfig
+No resources found in default namespace.
