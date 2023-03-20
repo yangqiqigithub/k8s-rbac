@@ -2,7 +2,7 @@
 kubectl config set-cluster kubernetes \
   --certificate-authority=/etc/kubernetes/pki/ca.crt \
   --embed-certs=true \
-  --server=https://192.168.31.61:6443 \
+  --server=https://192.168.31.61:6443 \ # api server地址
   --kubeconfig=aliang.kubeconfig
  
 # 设置客户端认证
